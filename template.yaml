@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: >
+  Lambda Deployment Template
+Globals:
+  Function:
+    Timeout: 600
+
+Resources:
+  WeatherLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: lambda_function.lambda_handler
+      FunctionName: weather-report-lambda
+      Role: !GetAtt LambdaServiceRole.Arn
+      Runtime: python3.9
+      Layers:
+        - !Ref MyLambdaLayer
+  MyLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: MyLambdaLayer
+      Description: Dependencies for Lambda
+      ContentUri: lambda-layers/python.zip
+      CompatibleRuntimes:
+        - python3.6
+        - python3.7
+        - python3.9
+  LambdaServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaServiceRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: lambdainvocation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: 
+                   - !Sub 'arn:aws:lambda:us-east-2:109598254717:function:weather-report-lambda'
+              - Effect: Allow
+                Action:
+                  - s3:ListAllMyBuckets
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                  - s3:GetBucketPolicy
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub "arn:aws:s3:::all-lambda-code-deploy-bucket/data_files/weather*"     
+        - PolicyName: cloudwatchlogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 
+                   - !Sub 'arn:aws:logs:us-east-2:109598254717:log-group:/aws/lambda/weather-report-lambda'
+        - PolicyName: s3ReadWrite
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:DeleteObject'
+                Resource: 
+                  - !Sub 'arn:aws:s3:::all-lambda-code-deploy-bucket/*'
+              - Effect: Allow
+                Action:
+                  - 's3:ListBucket'
+                Resource: 
+                  - !Sub 'arn:aws:s3:::all-lambda-code-deploy-bucket'
+        - PolicyName: dynamoDBReadWrite
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:*'
+                Resource: 
+                  - !Sub 'arn:aws:dynamodb:us-east-2:109598254717:table/weatherReport'
+  lambdaInvokeEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "EventRule to Fire lambda"
+      State: "ENABLED"
+      EventPattern:
+        source:
+          - "aws.s3"
+        detail:
+          eventName:
+            - "PutObject"
+          requestParameters:
+            bucketName: 
+              - !Sub "all-lambda-code-deploy-bucket"
+            key: 
+              - "prefix": "data_files/"
+      Targets:
+        - Arn: !GetAtt WeatherLambda.Arn
+          Id: "WeatherLambdaTarget"
+  permissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt WeatherLambda.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt lambdaInvokeEventRule.Arn
