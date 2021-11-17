@@ -1,7 +1,5 @@
 import pandas as pd
 import boto3
-import pyarrow as pa
-import pyarrow.parquet as pq
 from datetime import datetime
 import io
 
