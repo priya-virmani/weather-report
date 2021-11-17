@@ -42,15 +42,15 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
-        - PolicyName: lambdainvocation
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource: 
-                   - !Sub 'arn:aws:lambda:us-east-2:109598254717:function:weather-report-lambda'
+        # - PolicyName: lambdainvocation
+        #   PolicyDocument:
+        #     Version: '2012-10-17'
+        #     Statement:
+        #       - Effect: Allow
+        #         Action:
+        #           - lambda:InvokeFunction
+        #         Resource: 
+        #            - !Sub 'arn:aws:lambda:us-east-2:109598254717:function:weather-report-lambda'
               # - Effect: Allow
               #   Action:
               #     - s3:ListAllMyBuckets
@@ -61,7 +61,7 @@ Resources:
               #     - s3:DeleteObject
               #   Resource:
               #     - !Sub "arn:aws:s3:::all-lambda-code-deploy-bucket/data_files/source_file/*"     
-        - PolicyName: cloudwatchlogs
+        - PolicyName: AWSLambdaBasicExecutionRole
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -72,7 +72,7 @@ Resources:
                   - 'logs:PutLogEvents'
                 Resource: 
                    - !Sub 'arn:aws:logs:us-east-2:109598254717:log-group:/aws/lambda/weather-report-lambda'
-        - PolicyName: s3ReadWrite
+        - PolicyName: AmazonS3FullAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
