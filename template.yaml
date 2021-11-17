@@ -42,25 +42,20 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
-        # - PolicyName: lambdainvocation
-        #   PolicyDocument:
-        #     Version: '2012-10-17'
-        #     Statement:
-        #       - Effect: Allow
-        #         Action:
-        #           - lambda:InvokeFunction
-        #         Resource: 
-        #            - !Sub 'arn:aws:lambda:us-east-2:109598254717:function:weather-report-lambda'
-              # - Effect: Allow
-              #   Action:
-              #     - s3:ListAllMyBuckets
-              #     - s3:ListBucket
-              #     - s3:GetBucketLocation
-              #     - s3:GetBucketPolicy
-              #     - s3:PutObject
-              #     - s3:DeleteObject
-              #   Resource:
-              #     - !Sub "arn:aws:s3:::all-lambda-code-deploy-bucket/data_files/source_file/*"     
+        - PolicyName: lambdainvocation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: 
+                   - !Sub 'arn:aws:lambda:us-east-2:109598254717:function:weather-report-lambda'
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource:
+                  - !Sub "arn:aws:s3:::all-lambda-code-deploy-bucket/data_files/source_file/*"     
         - PolicyName: AWSLambdaBasicExecutionRole
           PolicyDocument:
             Version: '2012-10-17'
@@ -79,6 +74,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - 's3:*'
+                  - 's3-object-lambda:*'
                 Resource: 
                   - !Sub 'arn:aws:s3:::all-lambda-code-deploy-bucket/*'
                   - !Sub 'arn:aws:s3:::all-lambda-code-deploy-bucket'
