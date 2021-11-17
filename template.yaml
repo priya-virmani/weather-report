@@ -109,7 +109,7 @@ Resources:
   permissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !GetAtt WeatherLambda.Arn
+      FunctionName: !Ref WeatherLambda
       Action: "lambda:InvokeFunction"
-      Principal: "s3.amazonaws.com"
+      Principal: "events.amazonaws.com"
       SourceArn: !GetAtt lambdaInvokeEventRule.Arn
