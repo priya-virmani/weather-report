@@ -91,29 +91,29 @@ Resources:
                   - 'dynamodb:*'
                 Resource: 
                   - !Sub 'arn:aws:dynamodb:us-east-2:109598254717:table/weatherReport'
-  lambdaInvokeEventRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: "EventRule to Fire lambda"
-      State: "ENABLED"
-      EventPattern:
-        source:
-          - "aws.s3"
-        detail:
-          eventName:
-            - "PutObject"
-          requestParameters:
-            bucketName: 
-              - !Sub "all-lambda-code-deploy-bucket"
-            key: 
-              - "prefix": "data_files/source_file/"
-      Targets:
-        - Arn: !GetAtt WeatherLambda.Arn
-          Id: "WeatherLambdaTarget"
-  permissionForEventsToInvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref WeatherLambda
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !GetAtt lambdaInvokeEventRule.Arn
+  # lambdaInvokeEventRule:
+  #   Type: AWS::Events::Rule
+  #   Properties:
+  #     Description: "EventRule to Fire lambda"
+  #     State: "ENABLED"
+  #     EventPattern:
+  #       source:
+  #         - "aws.s3"
+  #       detail:
+  #         eventName:
+  #           - "PutObject"
+  #         requestParameters:
+  #           bucketName: 
+  #             - !Sub "all-lambda-code-deploy-bucket"
+  #           key: 
+  #             - "prefix": "data_files/source_file/"
+  #     Targets:
+  #       - Arn: !GetAtt WeatherLambda.Arn
+  #         Id: "WeatherLambdaTarget"
+  # permissionForEventsToInvokeLambda:
+  #   Type: AWS::Lambda::Permission
+  #   Properties:
+  #     FunctionName: !Ref WeatherLambda
+  #     Action: "lambda:InvokeFunction"
+  #     Principal: "events.amazonaws.com"
+  #     SourceArn: !GetAtt lambdaInvokeEventRule.Arn
